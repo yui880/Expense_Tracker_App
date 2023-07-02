@@ -9,6 +9,8 @@ import {GlobalStyles} from './constants/styles';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconButton from './components/UI/IconButton';
 import ExpensesContextProvider from './store/expenses-context';
+import {Provider} from 'react-redux';
+import {store} from './store/redux/store';
 
 export type RootStackParamList = {
   ManageExpense: {expenseId: string};
@@ -67,7 +69,8 @@ export default function App() {
   return (
     <>
       <StatusBar barStyle={'light-content'} />
-      <ExpensesContextProvider>
+      {/*<ExpensesContextProvider>*/}
+      <Provider store={store}>
         <NavigationContainer>
           <Stack.Navigator>
             <Stack.Screen
@@ -82,7 +85,8 @@ export default function App() {
             />
           </Stack.Navigator>
         </NavigationContainer>
-      </ExpensesContextProvider>
+      </Provider>
+      {/*</ExpensesContextProvider>*/}
     </>
   );
 }

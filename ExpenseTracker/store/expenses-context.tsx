@@ -34,23 +34,14 @@ const DUMMY_EXPENSES: ExpensesObject[] = [
   },
 ];
 
-// export const ExpensesContext = createContext({
-//   // 컨텍스트 객체의 모양과 콘텍스트 데이터를 정의 -> 자동완성을 도와줌
-//   expenses: [],
-//   addExpense: ({description, amount, date}: ExpenseObjectWithoutId) => {},
-//   deleteExpense: (id: string) => {},
-//   updateExpense: (
-//     id: string,
-//     {description, amount, date}: ExpenseObjectWithoutId,
-//   ) => {},
-// });
-
-export const ExpensesContext = createContext<{
+type ExpenseContextProps = {
   expenses: ExpensesObject[];
   addExpense: (expenseData: ExpenseObjectWithoutId) => void;
   deleteExpense: (id: string) => void;
   updateExpense: (id: string, expenseData: ExpenseObjectWithoutId) => void;
-}>({
+};
+
+export const ExpensesContext = createContext<ExpenseContextProps>({
   expenses: [],
   addExpense: () => {},
   deleteExpense: () => {},

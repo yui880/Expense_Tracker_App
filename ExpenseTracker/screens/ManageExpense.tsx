@@ -10,25 +10,14 @@ import IconButton from '../components/UI/IconButton';
 import {GlobalStyles} from '../constants/styles';
 import Button from '../components/UI/Button';
 import {ExpensesContext} from '../store/expenses-context';
-//
-// type ManageExpenseRouteProp =
-//   | RouteProp<RootStackParamList, 'ManageExpense'>
-//   | undefined;
-//
-// type ManageExpenseNavigationProp = NativeStackNavigationProp<
-//   RootStackParamList,
-//   'ManageExpense'
-// >;
-//
-// export type ManageExpenseProps = {
-//   route: ManageExpenseRouteProp;
-//   navigation: ManageExpenseNavigationProp;
-// };
-//
-// export type ManageExpenseScreenProps = NativeStackScreenProps<
-//   RootStackParamList,
-//   'ManageExpense'
-// >;
+import {useDispatch, useSelector} from 'react-redux';
+import {RootState} from '../store/redux/store';
+import {
+  addExpense,
+  deleteExpense,
+  updateExpense,
+} from '../store/redux/expenses';
+import {ExpensesObject} from '../components/ExpensesOutput/ExpensesOutput';
 
 type ManageExpenseScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -46,10 +35,13 @@ type ManageExpenseScreenProps = {
 };
 
 function ManageExpense({route, navigation}: ManageExpenseScreenProps) {
-  const expensesCtx = useContext(ExpensesContext);
+  // const expensesCtx = useContext(ExpensesContext);
 
-  const editedExpenseId = route.params?.expenseId; // 타입 오류나는데 작동은 제대로 함
+  const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId;
+
+  const expenses = useSelector((state: RootState) => state.expenses);
+  const dispatch = useDispatch();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -58,7 +50,8 @@ function ManageExpense({route, navigation}: ManageExpenseScreenProps) {
   }, [navigation, isEditing]);
 
   const deleteExpenseHandler = () => {
-    expensesCtx.deleteExpense(editedExpenseId);
+    // expensesCtx.deleteExpense(editedExpenseId);
+    dispatch(deleteExpense(editedExpenseId));
     navigation.goBack();
   };
   const cancelHandler = () => {
@@ -66,17 +59,34 @@ function ManageExpense({route, navigation}: ManageExpenseScreenProps) {
   };
   const confirmHandler = () => {
     if (isEditing) {
-      expensesCtx.updateExpense(editedExpenseId, {
-        description: 'Test!!!',
-        amount: 20.99,
-        date: new Date('2024-05-12'),
-      });
+      // expensesCtx.updateExpense(editedExpenseId, {
+      //   description: 'Test!!!',
+      //   amount: 20.99,
+      //   date: new Date('2024-05-12'),
+      // });
+      dispatch(
+        updateExpense({
+          id: editedExpenseId,
+          data: {
+            description: 'Test!!!',
+            amount: 20.99,
+            date: new Date('2024-05-12'),
+          },
+        }),
+      );
     } else {
-      expensesCtx.addExpense({
-        description: 'Test',
-        amount: 19.99,
-        date: new Date('2024-05-11'),
-      });
+      // expensesCtx.addExpense({
+      //   description: 'Test',
+      //   amount: 19.99,
+      //   date: new Date('2024-05-11'),
+      // });
+      dispatch(
+        addExpense({
+          description: 'Test',
+          amount: 19.99,
+          date: new Date('2024-05-11'),
+        }),
+      );
     }
     navigation.goBack();
   };

@@ -3,7 +3,7 @@ import {GlobalStyles} from '../../constants/styles';
 import {ExpensesObject} from './ExpensesOutput';
 import {getFormattedDate} from '../../util/date';
 import {useNavigation} from '@react-navigation/native';
-import {ManageExpenseScreenProps} from '../../screens/ManageExpense';
+//import {ManageExpenseScreenProps} from '../../screens/ManageExpense';
 
 type ExpenseItemProps = ExpensesObject;
 function ExpenseItem({id, description, amount, date}: ExpenseItemProps) {
