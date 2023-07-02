@@ -64,8 +64,8 @@ function App() {
   return (
     <View style={{flex: 1}}>
       <StatusBar barStyle={'light-content'} />
-      <FavoritesContextProvider>
-        {/*<Provider store={store}>*/}
+      {/*<FavoritesContextProvider>*/}
+      <Provider store={store}>
         <NavigationContainer>
           <Stack.Navigator
             screenOptions={{
@@ -85,8 +85,8 @@ function App() {
             <Stack.Screen name="MealDetail" component={MealDetailScreen} />
           </Stack.Navigator>
         </NavigationContainer>
-        {/*</Provider>*/}
-      </FavoritesContextProvider>
+      </Provider>
+      {/*</FavoritesContextProvider>*/}
     </View>
   );
 }

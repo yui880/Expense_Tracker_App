@@ -1,7 +1,7 @@
-import {Button, Image, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../App';
-import {Link, RouteProp, useRoute} from '@react-navigation/native';
+import {RouteProp} from '@react-navigation/native';
 import {MEALS} from '../data/dummy-data';
 import MealDetails from '../components/MealDetails';
 import Subtitle from '../components/MealDetail/Subtitle';
@@ -10,7 +10,9 @@ import {useContext, useLayoutEffect} from 'react';
 import IconButton from '../components/IconButton';
 import {FavoritesContext} from '../store/context/favorite-context';
 import meal from '../models/meal';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {RootState} from '../store/redux/store';
+import {addFavorite, removeFavorite} from '../store/redux/favorites';
 
 type DetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -26,18 +28,23 @@ function MealDetailScreen({navigation, route}: DetailScreenProps) {
   const mealId = route.params.mealId;
   const selectedMeal = MEALS.find(meal => meal.id === mealId)!;
 
-  const favoriteMealsCtx = useContext(FavoritesContext);
-  const mealIsFavorite = favoriteMealsCtx.ids.includes(mealId);
+  const favoriteMealIds = useSelector(
+    (state: RootState) => state.favoriteMeals.ids,
+  );
+  const dispatch = useDispatch();
+
+  const mealIsFavorite = favoriteMealIds.includes(mealId);
   const changeFavoriteStatusHandler = () => {
     if (mealIsFavorite) {
-      favoriteMealsCtx.removeFavorite(mealId);
+      dispatch(removeFavorite({id: mealId}));
     } else {
-      favoriteMealsCtx.addFavorite(mealId);
+      dispatch(addFavorite({id: mealId}));
     }
   };
 
-  // const favoriteMealIds = useSelector(state => state.favoriteMeals.ids);
-  // const mealIsFavorite = favoriteMealIds.ids.includes(mealId);
+  // Context API
+  // const favoriteMealsCtx = useContext(FavoritesContext);
+  // const mealIsFavorite = favoriteMealsCtx.ids.includes(mealId);
 
   useLayoutEffect(() => {
     navigation.setOptions({
