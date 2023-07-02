@@ -18,6 +18,9 @@ import {
   updateExpense,
 } from '../store/redux/expenses';
 import {ExpensesObject} from '../components/ExpensesOutput/ExpensesOutput';
+import ExpenseForm, {
+  ExpenseObjectWithoutId,
+} from '../components/ManageExpense/ExpenseForm';
 
 type ManageExpenseScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -35,13 +38,15 @@ type ManageExpenseScreenProps = {
 };
 
 function ManageExpense({route, navigation}: ManageExpenseScreenProps) {
-  // const expensesCtx = useContext(ExpensesContext);
+  const expenses = useSelector((state: RootState) => state.expenses);
+  const dispatch = useDispatch();
 
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId;
 
-  const expenses = useSelector((state: RootState) => state.expenses);
-  const dispatch = useDispatch();
+  const selectedExpense = expenses.expenses.find(
+    expense => expense.id === editedExpenseId,
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -57,50 +62,29 @@ function ManageExpense({route, navigation}: ManageExpenseScreenProps) {
   const cancelHandler = () => {
     navigation.goBack();
   };
-  const confirmHandler = () => {
+  const confirmHandler = (expenseData: ExpenseObjectWithoutId) => {
     if (isEditing) {
-      // expensesCtx.updateExpense(editedExpenseId, {
-      //   description: 'Test!!!',
-      //   amount: 20.99,
-      //   date: new Date('2024-05-12'),
-      // });
       dispatch(
         updateExpense({
           id: editedExpenseId,
-          data: {
-            description: 'Test!!!',
-            amount: 20.99,
-            date: new Date('2024-05-12'),
-          },
+          data: expenseData,
         }),
       );
     } else {
-      // expensesCtx.addExpense({
-      //   description: 'Test',
-      //   amount: 19.99,
-      //   date: new Date('2024-05-11'),
-      // });
-      dispatch(
-        addExpense({
-          description: 'Test',
-          amount: 19.99,
-          date: new Date('2024-05-11'),
-        }),
-      );
+      dispatch(addExpense(expenseData));
     }
     navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.buttons}>
-        <Button style={styles.button} onPress={cancelHandler} mode="flat">
-          Cancel
-        </Button>
-        <Button style={styles.button} onPress={confirmHandler}>
-          {isEditing ? 'Update' : 'Add'}
-        </Button>
-      </View>
+      <ExpenseForm
+        onCancel={cancelHandler}
+        onSubmit={confirmHandler}
+        submitButtonLabel={isEditing ? 'Update' : 'Add'}
+        defaultValues={selectedExpense}
+      />
+
       {isEditing && (
         <View style={styles.deleteContainer}>
           <IconButton
@@ -120,15 +104,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     backgroundColor: GlobalStyles.colors.primary800,
-  },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  button: {
-    minWidth: 120,
-    marginHorizontal: 8,
   },
   deleteContainer: {
     marginTop: 16,
