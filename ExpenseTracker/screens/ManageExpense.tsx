@@ -5,7 +5,7 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import {useContext, useLayoutEffect} from 'react';
+import {useContext, useLayoutEffect, useState} from 'react';
 import IconButton from '../components/UI/IconButton';
 import {GlobalStyles} from '../constants/styles';
 import Button from '../components/UI/Button';
@@ -21,6 +21,9 @@ import {ExpensesObject} from '../components/ExpensesOutput/ExpensesOutput';
 import ExpenseForm, {
   ExpenseObjectWithoutId,
 } from '../components/ManageExpense/ExpenseForm';
+import {backDeleteExpense, backUpdateExpense, storeExpense} from '../util/http';
+import LoadingOverlay from '../components/UI/LoadingOverlay';
+import ErrorOverlay from '../components/UI/ErrorOverlay';
 
 type ManageExpenseScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -38,6 +41,8 @@ type ManageExpenseScreenProps = {
 };
 
 function ManageExpense({route, navigation}: ManageExpenseScreenProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const expenses = useSelector((state: RootState) => state.expenses);
   const dispatch = useDispatch();
 
@@ -54,27 +59,55 @@ function ManageExpense({route, navigation}: ManageExpenseScreenProps) {
     });
   }, [navigation, isEditing]);
 
-  const deleteExpenseHandler = () => {
-    // expensesCtx.deleteExpense(editedExpenseId);
-    dispatch(deleteExpense(editedExpenseId));
-    navigation.goBack();
-  };
+  async function deleteExpenseHandler() {
+    setIsSubmitting(true);
+    try {
+      await backDeleteExpense(editedExpenseId);
+      dispatch(deleteExpense(editedExpenseId));
+      navigation.goBack();
+    } catch (error) {
+      setError('Could not delete expense!');
+      setIsSubmitting(false);
+    }
+  }
   const cancelHandler = () => {
     navigation.goBack();
   };
-  const confirmHandler = (expenseData: ExpenseObjectWithoutId) => {
-    if (isEditing) {
-      dispatch(
-        updateExpense({
-          id: editedExpenseId,
-          data: expenseData,
-        }),
-      );
-    } else {
-      dispatch(addExpense(expenseData));
+  async function confirmHandler(expenseData: ExpenseObjectWithoutId) {
+    setIsSubmitting(true);
+    try {
+      if (isEditing) {
+        // 로컬 업데이트
+        dispatch(
+          updateExpense({
+            id: editedExpenseId,
+            data: expenseData,
+          }),
+        );
+        // 백엔드 업데이트
+        await backUpdateExpense(editedExpenseId, expenseData);
+      } else {
+        const id = await storeExpense(expenseData);
+        dispatch(addExpense({expenseData, id: id}));
+      }
+      navigation.goBack();
+    } catch (error) {
+      setError('Could not save expense!');
+      setIsSubmitting(false);
     }
-    navigation.goBack();
-  };
+  }
+
+  function errorHandler() {
+    setError('');
+  }
+
+  if (error.length && !isSubmitting) {
+    return <ErrorOverlay message={error} onConfirm={errorHandler} />;
+  }
+
+  if (isSubmitting) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <View style={styles.container}>

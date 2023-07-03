@@ -1,46 +1,19 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {ExpensesObject} from '../../components/ExpensesOutput/ExpensesOutput';
 
-const DUMMY_EXPENSES: ExpensesObject[] = [
-  {
-    id: 'e1',
-    description: 'A pair of shoes',
-    amount: 59.99,
-    date: new Date('2023-11-20'),
-  },
-  {
-    id: 'e2',
-    description: 'banana',
-    amount: 10.99,
-    date: new Date('2023-01-22'),
-  },
-  {
-    id: 'e3',
-    description: 'cake',
-    amount: 7.22,
-    date: new Date('2023-05-20'),
-  },
-  {
-    id: 'e4',
-    description: 'phone',
-    amount: 222.32,
-    date: new Date('2023-09-07'),
-  },
-];
-let initialExpenses = [...DUMMY_EXPENSES];
-
 const expensesSlice = createSlice({
   name: 'expenses',
   initialState: {
-    expenses: initialExpenses,
+    expenses: new Array(),
   },
   reducers: {
     addExpense: (state, action) => {
       // 객체를 받아옴
-      const id = new Date().toString() + Math.random().toString();
-      const newExpense = {id: id, ...action.payload};
-      state.expenses = [...state.expenses, newExpense];
-      //state.expenses.push({id: id, ...action.payload});
+      state.expenses = [action.payload, ...state.expenses];
+    },
+    setExpenses: (state, action) => {
+      const inverted = action.payload.reverse();
+      state.expenses = inverted;
     },
     deleteExpense: (state, action) => {
       // id를 받아옴
@@ -66,4 +39,5 @@ const expensesSlice = createSlice({
 export const addExpense = expensesSlice.actions.addExpense;
 export const deleteExpense = expensesSlice.actions.deleteExpense;
 export const updateExpense = expensesSlice.actions.updateExpense;
+export const setExpenses = expensesSlice.actions.setExpenses;
 export default expensesSlice.reducer;
